@@ -1,2 +1,6 @@
 # Ignore the virtual environment folder
 myenv/
+
+# Ignore the .streamlit directory and the secrets.toml file
+.streamlit/
+.streamlit/secrets.toml
