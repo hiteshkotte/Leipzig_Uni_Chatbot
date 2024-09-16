@@ -4,3 +4,4 @@ myenv/
 # Ignore the .streamlit directory and the secrets.toml file
 .streamlit/
 .streamlit/secrets.toml
+.env
