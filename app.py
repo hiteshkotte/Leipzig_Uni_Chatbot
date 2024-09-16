@@ -63,14 +63,26 @@ else:
     st.sidebar.write("[Get a Cohere API key](https://dashboard.cohere.com/api-keys)")
     os.environ['COHERE_API_KEY'] = cohere_api_key
 
+if "GROQ_API_KEY" in st.secrets:
+    groq_api_key = st.secrets.GROQ_API_KEY
+    os.environ['GROQ_API_KEY'] = groq_api_key
+else:
+    groq_api_key = st.sidebar.text_input(
+        "Groq API Key", type="password"
+    )
+    st.sidebar.write("[Get a Groq API key](https://console.groq.com)")
+    os.environ['GROQ_API_KEY'] = groq_api_key
 
-if not openai_api_key or not cohere_api_key:
+if not openai_api_key or not cohere_api_key or not groq_api_key:
     if not openai_api_key:
         st.info("Please add your OpenAI API key to continue.")
     if not cohere_api_key:
         st.info("Please add your Cohere API key to continue.")
+    if not groq_api_key:
+        st.info("Please add your Groq API key to continue.")
     st.stop()
 
+#st.write(st.secrets)
 
 @st.cache_resource(ttl="1h")
 def get_executor_cached():

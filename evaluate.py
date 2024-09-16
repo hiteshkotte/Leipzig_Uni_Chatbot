@@ -118,7 +118,7 @@ def evaluate_dataset(file_path, dataset_name):
 
     query_answer_list = [query_answer_list[2]]
 
-    # query_answer_list = query_answer_list[0:10]
+    # query_answer_list = query_answer_list[0:1]
 
     agent_executor, conversational_memory = get_executor("All Material")
 

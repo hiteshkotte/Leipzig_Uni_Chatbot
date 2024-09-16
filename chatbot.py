@@ -20,7 +20,12 @@ from langchain.retrievers import ContextualCompressionRetriever
 from langchain_cohere import CohereRerank
 from langchain_core.prompt_values import ChatPromptValue
 from llama_parse import LlamaParse
+
+
+from langchain_groq import ChatGroq
+
 import nest_asyncio; nest_asyncio.apply()
+import time
 
 import pickle
 import os
@@ -462,7 +467,10 @@ def condense_prompt(prompt: ChatPromptValue, llm) -> ChatPromptValue:
 def get_executor(tool_name):
 
     llm = ChatOpenAI(model_name="gpt-3.5-turbo-0125", temperature=0.0, verbose=False)
-
+    #llm = ChatGroq(temperature=0.0, model_name="llama-3.1-70b-versatile", groq_api_key=os.getenv("GROQ_API_KEY"))
+    #Best embedding model for mixtral / LLama 
+    #Best practise for prompt
+    #Smith.langchain
     embeddings_model = OpenAIEmbeddings(model="text-embedding-3-large")
 
     retriever, tools = get_retrieval(tool_name, embeddings_model)
@@ -558,12 +566,16 @@ def add_cohere_costs(openai_callback, response):
 
 
 def generate_response(input, agent_executor, conversational_memory, st_callback):
+    start_time = time.time()
 
     with get_openai_callback() as openai_callback:
-
         response = chat_with_memory(input, agent_executor, conversational_memory, st_callback)
-
+        
         explanation = get_explanation(response)
+
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print(f"Time taken to generate response: {time_taken:.4f} seconds")
 
     openai_callback = add_cohere_costs(openai_callback, response)
 
