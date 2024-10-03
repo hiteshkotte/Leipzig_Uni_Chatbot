@@ -21,8 +21,10 @@ from langchain_cohere import CohereRerank
 from langchain_core.prompt_values import ChatPromptValue
 from llama_parse import LlamaParse
 
-
-from langchain_groq import ChatGroq
+import tiktoken
+tokenizer = tiktoken.get_encoding("cl100k_base")  # or "gpt-4" depending on the model you're using
+#
+# from langchain_groq import ChatGroq
 
 import nest_asyncio; nest_asyncio.apply()
 import time
@@ -32,6 +34,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 
 def parse_pdfs(documents_dir):
@@ -77,7 +80,7 @@ def get_all_material_retrieval(embeddings_model):
         storage_dir = "storage/data/lecture_material_index/"
 
         # Load the object back from the file
-        with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
+        with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file: 
             bm25_retriever = pickle.load(file)
 
         faiss_vectorstore = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
@@ -446,10 +449,18 @@ Let's think step by step.
 
     return custom_additional_message
 
+def count_tokens(messages):
+    # Tokenize each message and count total tokens
+    num_tokens = 0
+    for message in messages:
+        # Convert message content to tokens
+        num_tokens += len(tokenizer.encode(message.content))
+    return num_tokens
 
 def condense_prompt(prompt: ChatPromptValue, llm) -> ChatPromptValue:
     messages = prompt.to_messages()
-    num_tokens = llm.get_num_tokens_from_messages(messages)
+    #num_tokens = llm.get_num_tokens_from_messages(messages)
+    num_tokens = count_tokens(messages)  # Use custom token counting
     ai_function_messages = messages[3:]
     i = 0
     while num_tokens > 12_000:
@@ -466,7 +477,7 @@ def condense_prompt(prompt: ChatPromptValue, llm) -> ChatPromptValue:
 
 def get_executor(tool_name):
 
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo-0125", temperature=0.0, verbose=False)
+    llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.0, verbose=False)
     #llm = ChatGroq(temperature=0.0, model_name="llama-3.1-70b-versatile", groq_api_key=os.getenv("GROQ_API_KEY"))
     #Best embedding model for mixtral / LLama 
     #Best practise for prompt

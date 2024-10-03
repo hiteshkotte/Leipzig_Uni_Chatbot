@@ -116,9 +116,9 @@ def formulate_output(response):
 def evaluate_dataset(file_path, dataset_name):
     query_answer_list = get_questions_answers(file_path)
 
-    query_answer_list = [query_answer_list[2]]
+    #query_answer_list = [query_answer_list[2]]
 
-    # query_answer_list = query_answer_list[0:1]
+    query_answer_list = query_answer_list[0:20]
 
     agent_executor, conversational_memory = get_executor("All Material")
 
@@ -164,6 +164,7 @@ def evaluate_dataset(file_path, dataset_name):
     )
 
 
+
 def export_test_results(test_name, output_path):
     client = langsmith.Client()
 
@@ -171,8 +172,17 @@ def export_test_results(test_name, output_path):
     df.to_excel(output_path, index=False)
 
 
-# evaluate_sample("evaluation/data/lecture_questions_answers.json", 7)
 
-# evaluate_dataset("evaluation/data/seminar_questions_answers.json", "dataset-llm-qa-chatbot-seminar-new-v2-sample-0-10")
+#evaluate_sample("evaluation/data/lecture_questions_answers.json", 1)
 
-evaluate_dataset("evaluation/data/lecture_questions_answers.json", "dataset-llm-qa-chatbot-lecture-new-v2-sample-2")
+#evaluate_dataset("evaluation/data/seminar_questions_answers.json", "dataset-llm-qa-chatbot-seminar-new-v2-sample-0-10")
+
+evaluate_dataset("evaluation/data/organisational_questions_answers_information_v7.json", "dataset-llm-qa-chatbot-lecture-new-v2")
+
+#evaluate_dataset("evaluation/data/lecture_questions_answers.json", "dataset-llm-qa-chatbot-organizational-new-v2-sample-2")
+
+test_name = "slight-scale-48"  
+output_path = "/Users/hiteshkotte/Documents/DFKI/LLM Project/biwi-qa-system-main/LLM/evaluation/results/lecture_evaluation_results.xlsx"  
+export_test_results(test_name, output_path)
+
+
