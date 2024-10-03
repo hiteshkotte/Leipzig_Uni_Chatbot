@@ -11,30 +11,33 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, Prom
 from langchain_community.callbacks import get_openai_callback
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain_core.messages import AIMessage, HumanMessage
-from langchain.agents.format_scratchpad.openai_tools import (
-    format_to_openai_tool_messages,
-)
+from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.retrievers import ContextualCompressionRetriever
-from langchain_cohere import CohereRerank
+from langchain_cohere import CohereRerank, CohereEmbeddings
+from cohere import Client as CohereClient
 from langchain_core.prompt_values import ChatPromptValue
+from langchain_groq import ChatGroq
+from langchain_fireworks import ChatFireworks
+from langchain_together import ChatTogether
+from langchain_community.chat_models.azureml_endpoint import (
+    AzureMLChatOnlineEndpoint,
+    AzureMLEndpointApiType,
+    LlamaChatContentFormatter,
+    CustomOpenAIChatContentFormatter
+)
 from llama_parse import LlamaParse
-
-import tiktoken
-tokenizer = tiktoken.get_encoding("cl100k_base")  # or "gpt-4" depending on the model you're using
-#
-# from langchain_groq import ChatGroq
-
+from pydantic import BaseModel, Field
+from langchain_core.tools import tool
+from langchain_mistralai.chat_models import ChatMistralAI
 import nest_asyncio; nest_asyncio.apply()
-import time
 
 import pickle
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 
 def parse_pdfs(documents_dir):
@@ -69,7 +72,10 @@ def get_all_material_retrieval(embeddings_model):
     try:
         # Load the object back from the file
         with open(global_storage_dir + 'bm25_retriever.pkl', 'rb') as file:
-            bm25_retriever = pickle.load(file)
+            bm25_data = pickle.load(file)
+            bm25_retriever = bm25_data
+            # To set the k value:
+            bm25_retriever.k = 50
 
         faiss_vectorstore = FAISS.load_local(global_storage_dir + "vector_store", embeddings_model,
                                              allow_dangerous_deserialization=True)
@@ -80,8 +86,11 @@ def get_all_material_retrieval(embeddings_model):
         storage_dir = "storage/data/lecture_material_index/"
 
         # Load the object back from the file
-        with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file: 
-            bm25_retriever = pickle.load(file)
+        with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
+            bm25_data = pickle.load(file)
+            bm25_retriever = bm25_data
+            # To set the k value:
+            bm25_retriever.k = 50
 
         faiss_vectorstore = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
                                              allow_dangerous_deserialization=True)
@@ -89,7 +98,10 @@ def get_all_material_retrieval(embeddings_model):
         storage_dir = "storage/data/organisational_information_index/"
         # Load the object back from the file
         with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
-            bm25_retriever_organisational = pickle.load(file)
+            bm25_data_organisational = pickle.load(file)
+            bm25_retriever_organisational = bm25_data_organisational
+            # To set the k value:
+            bm25_retriever_organisational.k = 50
 
         faiss_vectorstore_organisational = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
                                                             allow_dangerous_deserialization=True)
@@ -103,7 +115,10 @@ def get_all_material_retrieval(embeddings_model):
         storage_dir = "storage/data/seminar_text_index/"
         # Load the object back from the file
         with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
-            bm25_retriever_seminar = pickle.load(file)
+            bm25_data_seminar = pickle.load(file)
+            bm25_retriever_seminar = bm25_data_seminar
+            # To set the k value:
+            bm25_retriever_seminar.k = 50
 
         faiss_vectorstore_seminar = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
                                                      allow_dangerous_deserialization=True)
@@ -119,6 +134,9 @@ def get_all_material_retrieval(embeddings_model):
             bm25_retriever_docs
         )
 
+        # To set the k value:
+        bm25_retriever.k = 50
+
         # Ensure the storage directory exists
         if not os.path.exists(global_storage_dir):
             os.makedirs(global_storage_dir, exist_ok=True)  # Creates the directory if it doesn't exist
@@ -128,18 +146,21 @@ def get_all_material_retrieval(embeddings_model):
 
         faiss_vectorstore.save_local(global_storage_dir + "vector_store")
 
-    bm25_retriever.k = 50
     faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": 50})
 
     # initialize the ensemble retriever
     ensemble_retriever = EnsembleRetriever(
         retrievers=[faiss_retriever, bm25_retriever], weights=[0.5, 0.5]
     )
+    
+    # cohere_client = CohereClient(api_key=os.getenv("COHERE_API_KEY"), base_url="https://Cohere-rerank-v3-english-mzptw.swedencentral.models.ai.azure.com/v1/rerank")
 
-    compressor = CohereRerank(top_n=5, model="rerank-english-v3.0")
+    compressor = CohereRerank(top_n=5, model="rerank-english-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
+    
     compressor_retriever = ContextualCompressionRetriever(
         base_compressor=compressor, base_retriever=ensemble_retriever
     )
+    
 
     return compressor_retriever
 
@@ -152,7 +173,10 @@ def get_lecture_material_retrieval(embeddings_model):
     try:
         # Load the object back from the file
         with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
-            bm25_retriever = pickle.load(file)
+            bm25_data = pickle.load(file)
+            bm25_retriever = bm25_data
+            # To set the k value:
+            bm25_retriever.k = 50
 
         faiss_vectorstore = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
                                              allow_dangerous_deserialization=True)
@@ -195,6 +219,9 @@ def get_lecture_material_retrieval(embeddings_model):
             documents
         )
 
+        # To set the k value:
+        bm25_retriever.k = 50
+
         # Ensure the storage directory exists
         if not os.path.exists(storage_dir):
             os.makedirs(storage_dir, exist_ok=True)  # Creates the directory if it doesn't exist
@@ -207,7 +234,6 @@ def get_lecture_material_retrieval(embeddings_model):
         )
         faiss_vectorstore.save_local(storage_dir + "vector_store")
 
-    bm25_retriever.k = 50
     faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": 50})
 
     # initialize the ensemble retriever
@@ -215,7 +241,7 @@ def get_lecture_material_retrieval(embeddings_model):
         retrievers=[faiss_retriever, bm25_retriever], weights=[0.5, 0.5]
     )
 
-    compressor = CohereRerank(top_n=5, model="rerank-multilingual-v3.0")
+    compressor = CohereRerank(top_n=5, model="rerank-multilingual-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
     compressor_retriever = ContextualCompressionRetriever(
         base_compressor=compressor, base_retriever=ensemble_retriever
     )
@@ -231,7 +257,10 @@ def get_seminar_material_retrieval(embeddings_model):
     try:
         # Load the object back from the file
         with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
-            bm25_retriever = pickle.load(file)
+            bm25_data = pickle.load(file)
+            bm25_retriever = bm25_data
+            # To set the k value:
+            bm25_retriever.k = 50
 
         faiss_vectorstore = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
                                              allow_dangerous_deserialization=True)
@@ -276,6 +305,9 @@ def get_seminar_material_retrieval(embeddings_model):
             documents
         )
 
+        # To set the k value:
+        bm25_retriever.k = 50
+
         # Ensure the storage directory exists
         if not os.path.exists(storage_dir):
             os.makedirs(storage_dir, exist_ok=True)  # Creates the directory if it doesn't exist
@@ -288,7 +320,6 @@ def get_seminar_material_retrieval(embeddings_model):
         )
         faiss_vectorstore.save_local(storage_dir + "vector_store")
 
-    bm25_retriever.k = 50
     faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": 50})
 
     # initialize the ensemble retriever
@@ -296,7 +327,7 @@ def get_seminar_material_retrieval(embeddings_model):
         retrievers=[faiss_retriever, bm25_retriever], weights=[0.5, 0.5]
     )
 
-    compressor = CohereRerank(top_n=5, model="rerank-multilingual-v3.0")
+    compressor = CohereRerank(top_n=5, model="rerank-multilingual-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
     compressor_retriever = ContextualCompressionRetriever(
         base_compressor=compressor, base_retriever=ensemble_retriever
     )
@@ -313,7 +344,10 @@ def get_organisational_material_retrieval(embeddings_model):
     try:
         # Load the object back from the file
         with open(storage_dir + 'bm25_retriever.pkl', 'rb') as file:
-            bm25_retriever = pickle.load(file)
+            bm25_data = pickle.load(file)
+            bm25_retriever = bm25_data
+            # To set the k value:
+            bm25_retriever.k = 50
 
         faiss_vectorstore = FAISS.load_local(storage_dir + "vector_store", embeddings_model,
                                              allow_dangerous_deserialization=True)
@@ -357,6 +391,9 @@ def get_organisational_material_retrieval(embeddings_model):
             documents
         )
 
+        # To set the k value:
+        bm25_retriever.k = 50
+
         # Ensure the storage directory exists
         if not os.path.exists(storage_dir):
             os.makedirs(storage_dir, exist_ok=True)  # Creates the directory if it doesn't exist
@@ -369,7 +406,6 @@ def get_organisational_material_retrieval(embeddings_model):
         )
         faiss_vectorstore.save_local(storage_dir + "vector_store")
 
-    bm25_retriever.k = 50
     faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": 50})
 
     # initialize the ensemble retriever
@@ -377,7 +413,7 @@ def get_organisational_material_retrieval(embeddings_model):
         retrievers=[faiss_retriever, bm25_retriever], weights=[0.5, 0.5]
     )
 
-    compressor = CohereRerank(top_n=5, model="rerank-multilingual-v3.0")
+    compressor = CohereRerank(top_n=5, model="rerank-multilingual-v3.0", cohere_api_key=os.getenv("AZURE_COHERE_API_KEY"))
     compressor_retriever = ContextualCompressionRetriever(
         base_compressor=compressor, base_retriever=ensemble_retriever
     )
@@ -449,18 +485,10 @@ Let's think step by step.
 
     return custom_additional_message
 
-def count_tokens(messages):
-    # Tokenize each message and count total tokens
-    num_tokens = 0
-    for message in messages:
-        # Convert message content to tokens
-        num_tokens += len(tokenizer.encode(message.content))
-    return num_tokens
 
 def condense_prompt(prompt: ChatPromptValue, llm) -> ChatPromptValue:
     messages = prompt.to_messages()
-    #num_tokens = llm.get_num_tokens_from_messages(messages)
-    num_tokens = count_tokens(messages)  # Use custom token counting
+    num_tokens = llm.get_num_tokens_from_messages(messages)
     ai_function_messages = messages[3:]
     i = 0
     while num_tokens > 12_000:
@@ -474,21 +502,69 @@ def condense_prompt(prompt: ChatPromptValue, llm) -> ChatPromptValue:
     messages = messages[:3] + ai_function_messages
     return ChatPromptValue(messages=messages)
 
+class WeatherInput(BaseModel):
+    location: str = Field(description="The city and state, e.g. San Francisco, CA")
+    unit: str = Field(enum=["celsius", "fahrenheit"])
+
+
+@tool("get_current_weather", args_schema=WeatherInput)
+def get_weather(location: str, unit: str):
+    """Get the current weather in a given location"""
+    return f"Now the weather in {location} is 22 {unit}"
 
 def get_executor(tool_name):
 
-    llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.0, verbose=False)
-    #llm = ChatGroq(temperature=0.0, model_name="llama-3.1-70b-versatile", groq_api_key=os.getenv("GROQ_API_KEY"))
-    #Best embedding model for mixtral / LLama 
-    #Best practise for prompt
-    #Smith.langchain
     embeddings_model = OpenAIEmbeddings(model="text-embedding-3-large")
 
     retriever, tools = get_retrieval(tool_name, embeddings_model)
 
+    llm = ChatOpenAI(model_name="gpt-4o-mini", temperature=0.0, verbose=False)
+
+    llm = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.0, verbose=False)
+
+    llm = ChatFireworks(model="accounts/fireworks/models/llama-v3p1-70b-instruct", temperature=0.0, verbose=False)
+
+    llm = ChatTogether(model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo", temperature=0.0, verbose=False)
+
+    llm = AzureMLChatOnlineEndpoint(
+        endpoint_url="https://Meta-Llama-3-70B-Instruct-hoiqw.swedencentral.models.ai.azure.com/v1/chat/completions",
+        endpoint_api_type=AzureMLEndpointApiType.serverless,
+        endpoint_api_key=os.getenv("AZURE_LLAMA_3_70B_API_KEY"),
+        content_formatter=CustomOpenAIChatContentFormatter(),
+        model_kwargs={"temperature": 0.0}
+    )
+
+    llm = AzureMLChatOnlineEndpoint(
+        endpoint_url="https://Meta-Llama-3-1-70B-Instruct-rxeq.swedencentral.models.ai.azure.com/v1/chat/completions",
+        endpoint_api_type=AzureMLEndpointApiType.serverless,
+        endpoint_api_key=os.getenv("AZURE_LLAMA_3_1_70B_API_KEY"),
+        content_formatter=CustomOpenAIChatContentFormatter(),
+        model_kwargs={"temperature": 0.0}
+    )
+    
+    '''
+    llm = ChatMistralAI(endpoint="https://Meta-Llama-3-1-70B-Instruct-rxeq.swedencentral.models.ai.azure.com/v1", temperature=0.0, verbose=False, mistral_api_key=os.getenv("AZURE_LLAMA_3_1_70B_API_KEY"))
+
+    llm = ChatMistralAI(endpoint="https://Mistral-large-2407-vhvld.swedencentral.models.ai.azure.com/v1", temperature=0.0, verbose=False, mistral_api_key=os.getenv("AZURE_MISTRAL_LARGE_API_KEY"))
+
+    llm = ChatMistralAI(endpoint="https://Mistral-small-voicp.swedencentral.models.ai.azure.com/v1", temperature=0.0, verbose=False, mistral_api_key=os.getenv("AZURE_MISTRAL_SMALL_API_KEY"))
+
+    llm = ChatMistralAI(endpoint="https://Mistral-Nemo-mswsm.swedencentral.models.ai.azure.com/v1", temperature=0.0, verbose=False, mistral_api_key=os.getenv("AZURE_MISTRAL_NEMO_API_KEY"))
+    '''
+
+    llm = ChatGroq(model="llama-3.1-70b-versatile", temperature=0.0, verbose=False)
+
     assistant_system_message = """You are a helpful assistant."""
 
     custom_additional_message = get_custom_additional_system_message()
+
+    llm_with_tools = llm.bind(tools=[convert_to_openai_tool(tool) for tool in tools])
+
+    print(llm_with_tools)
+
+    assistant_system_message = assistant_system_message #+ "\n\nYou have access to the following tools:\n\n" + str(convert_to_openai_tool(tools[0]))
+
+    print(assistant_system_message + custom_additional_message)
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -499,8 +575,17 @@ def get_executor(tool_name):
         ]
     )
 
-    llm_with_tools = llm.bind(tools=[convert_to_openai_tool(tool) for tool in tools])
-
+    '''
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "<|begin_of_text|>system<|start_header_id|>" + assistant_system_message + custom_additional_message + "<|eot_id|>"),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("user", "<|start_header_id|>user<|end_header_id|>" + "{input}" + "<|eot_id|>"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
+        ]
+    )
+    '''
+    
     # conversational memory
     conversational_memory = ConversationBufferWindowMemory(
         memory_key='chat_history',
@@ -517,7 +602,7 @@ def get_executor(tool_name):
                 ),
             }
             | prompt
-            | (lambda x: condense_prompt(x, llm))
+        #    | (lambda x: condense_prompt(x, llm))
             | llm_with_tools
             | OpenAIToolsAgentOutputParser()
     )
@@ -577,16 +662,12 @@ def add_cohere_costs(openai_callback, response):
 
 
 def generate_response(input, agent_executor, conversational_memory, st_callback):
-    start_time = time.time()
 
     with get_openai_callback() as openai_callback:
-        response = chat_with_memory(input, agent_executor, conversational_memory, st_callback)
-        
-        explanation = get_explanation(response)
 
-    end_time = time.time()
-    time_taken = end_time - start_time
-    print(f"Time taken to generate response: {time_taken:.4f} seconds")
+        response = chat_with_memory(input, agent_executor, conversational_memory, st_callback)
+
+        explanation = get_explanation(response)
 
     openai_callback = add_cohere_costs(openai_callback, response)
 
