@@ -37,7 +37,7 @@ The chatbot addresses the challenge of scalable mentoring in higher education by
 
 ### 1. Learning Material Indexing & Retrieval
 
-![Indexing Process](Figure3.png "Indexing and Retrieval Process")
+![Indexing Process](Figure3.png)
 *Figure 3: Indexing and Retrieval Process*
 
 **Process Steps:**
@@ -49,7 +49,7 @@ The chatbot addresses the challenge of scalable mentoring in higher education by
 
 ### 2. Chatbot Interaction Flow
 
-![Chatbot Flow](docs/architecture/figure4.png "Chatbot Interaction Flow")
+![Chatbot Flow](Figure4.png)
 *Figure 4: Chatbot Interaction Flow*
 
 **Key Components:**
