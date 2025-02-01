@@ -38,7 +38,6 @@ The chatbot addresses the challenge of scalable mentoring in higher education by
 ### 1. Learning Material Indexing & Retrieval
 
 ![Indexing Process](Figure3.png)
-*Figure 3: Indexing and Retrieval Process*
 
 **Process Steps:**
 1. **Material Parsing**: Convert PDFs to structured text using Llama Parser
@@ -50,7 +49,6 @@ The chatbot addresses the challenge of scalable mentoring in higher education by
 ### 2. Chatbot Interaction Flow
 
 ![Chatbot Flow](Figure4.png)
-*Figure 4: Chatbot Interaction Flow*
 
 **Key Components:**
 - **Conversation History**: Maintains context using 10-message history
