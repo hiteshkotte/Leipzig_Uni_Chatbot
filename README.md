@@ -8,10 +8,22 @@ The BiWi AI Tutor is an advanced educational chatbot designed to provide scalabl
 ## Project Overview
 
 ### Key Features:
-- **24/7 Academic Support**: Instant answers to course-related questions
-- **Context-Aware Responses**: Utilizes course materials for accurate answers
-- **Self-Regulated Learning**: Supports individual learning processes
-- **Mentoring Integration**: Provides psychosocial support (in development)
+
+- **Intelligent Chatbot**: Utilizes LangChain and LangGraph to handle complex queries.
+
+- **Document Retrieval**: Fetches and processes course materials to provide context-aware answers.
+
+- **Document Reranking**: Employs Cohere for efficient document reranking and filtering.
+
+- **Multi-Model Support**: Integrates multiple models including OpenAI gpt-4o-mini and Cohere rerank-v3.0.
+
+- **Web Interface**: User-friendly interface built with Streamlit for seamless interactions.
+
+- **API Access**: Exposes FastAPI endpoints for integrating the chatbot into other applications.
+
+- **Evaluation Tools**: Scripts for evaluating the chatbot's performance against predefined datasets.
+
+- **Mentoring Support**: Chatbot can provide mentoring by following specific instructions and guidelines set by the teaching staff to assist students effectively.
 
 ### Educational Context:
 The chatbot addresses the challenge of scalable mentoring in higher education by acting as a virtual expert on course content and organizational information. It supports students in:
