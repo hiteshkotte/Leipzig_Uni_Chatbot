@@ -1,7 +1,3 @@
----
-title: BiWi AI Tutor - Educational Chatbot
-description: Scalable educational support using Retrieval-Augmented Generation
----
 
 # BiWi AI Tutor: AI-Powered Educational Chatbot
 
@@ -98,9 +94,7 @@ The chatbot addresses the challenge of scalable mentoring in higher education by
 ## Future Development
 
 ### Planned Features:
-- **Emotional Intelligence**: Integrate sentiment analysis for psychosocial support
 - **Personalized Learning Paths**: Generate adaptive learning recommendations
-- **Multi-Language Support**: Expand to international course materials
 - **Bias Mitigation**: Implement fairness-aware response generation
 - **Hybrid Deployment**: Offer on-premise installation options
 
@@ -112,26 +106,10 @@ The chatbot addresses the challenge of scalable mentoring in higher education by
 
 ---
 
-## Getting Started
-
 ### Prerequisites:
 - Python 3.9+
 - Docker
 - OpenAI API key
 - Cohere API key
 
-### Installation:
-```bash
-# Clone repository
-git clone https://github.com/your-username/biwi-qa-system.git
-cd biwi-qa-system
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Build Docker image
-docker build -t biwi-tutor .
