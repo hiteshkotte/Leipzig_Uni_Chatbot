@@ -1,6 +1,9 @@
 
 # BiWi AI Tutor: AI-Powered Educational Chatbot
 
+Welcome to the BiWi AI Tutor project! This application is designed to assist students in the Bildungswissenschaften (BiWi) course at the University of Leipzig by providing an intelligent chatbot that can answer questions related to the course material. The AI Tutor leverages advanced language models and document retrieval systems to provide accurate and helpful responses, enhancing the learning experience.
+
+
 The BiWi AI Tutor is an advanced educational chatbot designed to provide scalable, personalized learning support for higher education students. Developed as part of the tech4compKI initiative funded by the German Federal Ministry of Education and Research, this system leverages large language models (LLMs) and retrieval-augmented generation to deliver context-aware responses to student queries.
 
 ---
