@@ -1,133 +1,137 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BiWi AI Tutor - Educational Chatbot</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 1200px; margin: 0 auto; padding: 20px; }
-        header { background: #f5f5f5; padding: 20px; text-align: center; }
-        .section { margin: 40px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .architecture img { max-width: 100%; height: auto; }
-        .tech-stack { columns: 3; list-style-type: none; padding: 0; }
-        .tech-stack li { break-inside: avoid; margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px; }
-        .evaluation-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        .evaluation-table th, .evaluation-table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>BiWi AI Tutor: Scalable Educational Chatbot</h1>
-        <p>Powered by Retrieval-Augmented Generation (RAG) and LLMs</p>
-    </header>
+---
+title: BiWi AI Tutor - Educational Chatbot
+description: Scalable educational support using Retrieval-Augmented Generation
+---
 
-    <div class="section">
-        <h2>Project Overview</h2>
-        <p>The BiWi AI Tutor is an advanced educational chatbot designed to provide scalable, personalized learning support for higher education students. Developed as part of the tech4compKI initiative funded by the German Federal Ministry of Education and Research, this system leverages large language models (LLMs) and retrieval-augmented generation to deliver context-aware responses to student queries.</p>
-        <p>Key objectives:</p>
-        <ul>
-            <li>Provide 24/7 academic support</li>
-            <li>Deliver contextually relevant answers using course materials</li>
-            <li>Support self-regulated learning through interactive feedback</li>
-        </ul>
-    </div>
+# BiWi AI Tutor: AI-Powered Educational Chatbot
 
-    <div class="section">
-        <h2>Technical Architecture</h2>
-        <div class="architecture">
-            <h3>1. Learning Material Indexing & Retrieval</h3>
-            <!-- Insert Figure 3 image here -->
-            <p><strong>Figure 3: Indexing and Retrieval Process</strong></p>
-            <p>This process involves:</p>
-            <ol>
-                <li>Course material parsing using Llama Parser</li>
-                <li>Text chunking into 1024-token segments</li>
-                <li>Vector embeddings generation with OpenAI's text-embedding-3-large</li>
-                <li>Hybrid retrieval using semantic search (Vector Index) and keyword search (BM25 Index)</li>
-                <li>Context reranking using Cohere's reranker model</li>
-            </ol>
+The BiWi AI Tutor is an advanced educational chatbot designed to provide scalable, personalized learning support for higher education students. Developed as part of the [tech4compKI](https://www.bmbf.de/) initiative funded by the German Federal Ministry of Education and Research, this system leverages large language models (LLMs) and retrieval-augmented generation to deliver context-aware responses to student queries.
 
-            <h3>2. Chatbot Interaction Flow</h3>
-            <!-- Insert Figure 4 image here -->
-            <p><strong>Figure 4: Chatbot Interaction Flow</strong></p>
-            <p>Key components:</p>
-            <ul>
-                <li>Conversation history retrieval</li>
-                <li>Tool selection using LangChain's Function Calling Agent</li>
-                <li>Context-aware response generation</li>
-                <li>Dynamic multi-turn interaction handling</li>
-            </ul>
-        </div>
-    </div>
+---
 
-    <div class="section">
-        <h2>Technology Stack</h2>
-        <ul class="tech-stack">
-            <li><strong>LLM Engine:</strong> OpenAI GPT-3.5-turbo (Fine-tuned for educational domain)</li>
-            <li><strong>Retrieval System:</strong> LangChain with hybrid Vector + BM25 indexes</li>
-            <li><strong>Reranking:</strong> Cohere reranker-v3.0 model</li>
-            <li><strong>Text Parsing:</strong> LlamaIndex with Llama Parser module</li>
-            <li><strong>Embeddings:</strong> OpenAI text-embedding-3-large</li>
-            <li><strong>Observability:</strong> LangSmith for interaction tracking</li>
-            <li><strong>Deployment:</strong> Dockerized container with FastAPI backend</li>
-            <li><strong>Frontend:</strong> React-based chat interface</li>
-            <li><strong>Database:</strong> PostgreSQL for conversation history</li>
-            <li><strong>Monitoring:</strong> Prometheus + Grafana</li>
-        </ul>
-    </div>
+## Project Overview
 
-    <div class="section">
-        <h2>Performance Evaluation</h2>
-        <p>The system was evaluated using a dataset of 60 questions across three categories:</p>
-        <table class="evaluation-table">
-            <tr>
-                <th>Category</th>
-                <th>Human Evaluation Accuracy</th>
-                <th>GPT-4 Evaluation Accuracy</th>
-            </tr>
-            <tr>
-                <td>Lecture Content</td>
-                <td>80%</td>
-                <td>85%</td>
-            </tr>
-            <tr>
-                <td>Seminar Material</td>
-                <td>75%</td>
-                <td>75%</td>
-            </tr>
-            <tr>
-                <td>Organizational Queries</td>
-                <td>85%</td>
-                <td>85%</td>
-            </tr>
-        </table>
-        <p>Reranker implementation improved organizational query accuracy to 100% in subsequent tests</p>
-    </div>
+### Key Features:
+- **24/7 Academic Support**: Instant answers to course-related questions
+- **Context-Aware Responses**: Utilizes course materials for accurate answers
+- **Self-Regulated Learning**: Supports individual learning processes
+- **Mentoring Integration**: Provides psychosocial support (in development)
 
-    <div class="section">
-        <h2>Key Innovations</h2>
-        <ul>
-            <li>Hybrid retrieval system combining semantic and keyword search</li>
-            <li>Dynamic context reranking for improved relevance</li>
-            <li>Multi-turn conversation handling with LangChain agents</li>
-            <li>Integration with existing LMS infrastructure</li>
-            <li>Adaptive response generation based on conversation history</li>
-        </ul>
-    </div>
+### Educational Context:
+The chatbot addresses the challenge of scalable mentoring in higher education by acting as a virtual expert on course content and organizational information. It supports students in:
+- Clarifying problematic situations
+- Planning and monitoring learning progress
+- Receiving feedback on writing tasks
 
-    <div class="section">
-        <h2>Future Development</h2>
-        <ul>
-            <li>Integration of emotional intelligence components</li>
-            <li>Personalized learning pathway generation</li>
-            <li>Multi-language support for international courses</li>
-            <li>Advanced bias detection and mitigation</li>
-            <li>Hybrid model deployment with on-premise options</li>
-        </ul>
-    </div>
+---
 
-    <footer>
-        <p>Developed by the tech4compKI team | Funded by BMBF (Grant No. 16DHB2206)</p>
-    </footer>
-</body>
-</html>
+## Technical Architecture
+
+### 1. Learning Material Indexing & Retrieval
+
+![Indexing Process](docs/architecture/figure3.png "Indexing and Retrieval Process")
+*Figure 3: Indexing and Retrieval Process*
+
+**Process Steps:**
+1. **Material Parsing**: Convert PDFs to structured text using Llama Parser
+2. **Text Chunking**: Divide content into 1024-token segments with 20-token overlap
+3. **Vector Embeddings**: Generate semantic embeddings using OpenAI's text-embedding-3-large
+4. **Hybrid Search**: Combine semantic (Vector Index) and keyword (BM25) retrieval
+5. **Context Reranking**: Prioritize relevant chunks using Cohere's reranker model
+
+### 2. Chatbot Interaction Flow
+
+![Chatbot Flow](docs/architecture/figure4.png "Chatbot Interaction Flow")
+*Figure 4: Chatbot Interaction Flow*
+
+**Key Components:**
+- **Conversation History**: Maintains context using 10-message history
+- **Tool Selection**: LangChain Function Calling Agent for dynamic tool use
+- **Context-Aware Generation**: Combines retrieved context with LLM reasoning
+- **Multi-Turn Handling**: Iterative loop for complex queries
+
+---
+
+## Technology Stack
+
+### Core Components:
+- **LLM Engine**: OpenAI GPT-3.5-turbo (fine-tuned for education)
+- **Retrieval System**: LangChain with hybrid indexes
+- **Reranking**: Cohere reranker-v3.0 model
+- **Text Parsing**: LlamaIndex with Llama Parser
+- **Observability**: LangSmith tracking
+
+### Infrastructure:
+- **Backend**: Dockerized FastAPI service
+- **Frontend**: React-based chat interface
+- **Database**: PostgreSQL for conversation history
+- **Monitoring**: Prometheus + Grafana
+- **Embeddings**: OpenAI text-embedding-3-large
+
+---
+
+## Performance Evaluation
+
+| Category           | Human Evaluation Accuracy | GPT-4 Evaluation Accuracy |
+|--------------------|---------------------------|---------------------------|
+| Lecture Content    | 80%                       | 85%                       |
+| Seminar Material   | 75%                       | 75%                       |
+| Organizational     | 85%                       | 85%                       |
+
+**Key Results:**
+- Achieved 87% overall correct response rate
+- Perfect agreement (100%) with human evaluations on organizational questions
+- Reranker implementation improved accuracy by 15% in subsequent tests
+
+---
+
+## Key Innovations
+
+- **Hybrid Retrieval System**: Combines semantic and keyword search
+- **Dynamic Context Reranking**: Improves relevance of retrieved content
+- **Multi-Turn Conversation Handling**: Maintains context across interactions
+- **Tool-Based Architecture**: Modular design for easy expansion
+- **Adaptive Response Generation**: Context-aware answer formulation
+
+---
+
+## Future Development
+
+### Planned Features:
+- **Emotional Intelligence**: Integrate sentiment analysis for psychosocial support
+- **Personalized Learning Paths**: Generate adaptive learning recommendations
+- **Multi-Language Support**: Expand to international course materials
+- **Bias Mitigation**: Implement fairness-aware response generation
+- **Hybrid Deployment**: Offer on-premise installation options
+
+### Research Directions:
+- Benchmarking open-source LLMs vs proprietary models
+- Development of explainable AI components
+- Integration with Learning Management Systems (LMS)
+- Longitudinal studies on student engagement
+
+---
+
+## Getting Started
+
+### Prerequisites:
+- Python 3.9+
+- Docker
+- OpenAI API key
+- Cohere API key
+
+### Installation:
+```bash
+# Clone repository
+git clone https://github.com/your-username/biwi-qa-system.git
+cd biwi-qa-system
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Build Docker image
+docker build -t biwi-tutor .
